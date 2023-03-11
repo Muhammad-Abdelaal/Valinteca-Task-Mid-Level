@@ -55,6 +55,7 @@ if (!JSON.parse(localStorage.getItem("products"))) {
 
 const render = (function () {
   const books = function () {
+    BOOKS_LIST.innerHTML = '';
     JSON.parse(localStorage.getItem("products")).forEach((item) => {
       BOOKS_LIST.innerHTML += `
       <div class="book">
@@ -68,12 +69,51 @@ const render = (function () {
             </div>
             <div class = "book-actions">
                 <img class = "view" src = "${VIEW_ICON}" />
-                <div class = "add-to-cart">+</div>
+                <div class = "add-to-cart">${item.added_to_cart ? '-' : '+'}</div>
             </div>
         </div>
       </div>
       `;
     });
+    const ADD_TO_CART = document.querySelectorAll(".add-to-cart");
+    for (let i = 0; i < ADD_TO_CART.length; i++) {
+      ADD_TO_CART[i].addEventListener("click", () => {
+        const product = JSON.parse(localStorage.getItem("products"))[i];
+        const itemIndex = JSON.parse(localStorage.getItem("products")).findIndex( item => item.product_name === product.product_name );
+
+        if (product.added_to_cart === false) {
+          let updatedProduct = {...product, added_to_cart:true}
+          let updatedProducts = JSON.parse(localStorage.getItem("products"))
+          updatedProducts[itemIndex] = updatedProduct;
+          localStorage.setItem(
+            "products",
+            JSON.stringify(updatedProducts)
+          );
+          ADD_TO_CART[i].innerHTML = '-';
+          render.cartCounter();
+        }
+        else {
+          const products = JSON.parse(localStorage.getItem("products"))
+          let updatedProduct = {...products[i], added_to_cart:false}
+          let updatedProducts = JSON.parse(localStorage.getItem("products"))
+          updatedProducts[i] = updatedProduct;
+          localStorage.setItem(
+            "products",
+            JSON.stringify(updatedProducts)
+          );
+          ADD_TO_CART[i].innerHTML = '+';
+          render.cartCounter();
+        }
+      });
+    }
+    const QUICK_VIEW_BTN = document.querySelectorAll(".view")
+    for (let i = 0; i < ADD_TO_CART.length; i++) {
+      QUICK_VIEW_BTN[i].addEventListener("click", () => {
+        const product = JSON.parse(localStorage.getItem("products"))[i];
+        render.quickView(product)
+        OVERLAY.style.display = 'block';
+      });
+    }
   };
 
   const cart = function () {
@@ -116,6 +156,7 @@ const render = (function () {
           );
           render.cart();
           render.cartCounter();
+          render.books();
     
         });
       }
@@ -161,9 +202,44 @@ const render = (function () {
         <div class = "modal-item-details">
           <p class = "modal-item__name">${currentBook.product_name}</p>
           <p class = "modal-item__price">Price: $${currentBook.product_price}</p>
+          <div class = "add-to-cart-review">${currentBook.added_to_cart ? '-' : '+'}</div>
         </div>
       
     `
+    const ADD_TO_CART_REVIEW = document.querySelector('.add-to-cart-review');
+
+    ADD_TO_CART_REVIEW.addEventListener('click', () => {
+      const product = currentBook;
+      const itemIndex = JSON.parse(localStorage.getItem("products")).findIndex( item => item.product_name === product.product_name );
+
+        if (product.added_to_cart === false) {
+          let updatedProduct = {...product, added_to_cart:true}
+          let updatedProducts = JSON.parse(localStorage.getItem("products"))
+          updatedProducts[itemIndex] = updatedProduct;
+          localStorage.setItem(
+            "products",
+            JSON.stringify(updatedProducts)
+          );
+          render.quickView(updatedProduct);
+          render.cartCounter();
+        }
+        else {
+          console.log('remooove')
+          const products = JSON.parse(localStorage.getItem("products"))
+          let updatedProduct = {...products[itemIndex], added_to_cart:false}
+          let updatedProducts = JSON.parse(localStorage.getItem("products"))
+          updatedProducts[itemIndex] = updatedProduct;
+          localStorage.setItem(
+            "products",
+            JSON.stringify(updatedProducts)
+          );
+          render.quickView(updatedProduct);
+          render.cartCounter();
+        }
+
+        render.books();
+    })
+
   }
   return { books, cart, cartCounter, quickView};
 })();
@@ -172,33 +248,9 @@ render.books();
 render.cartCounter();
 
 
-const ADD_TO_CART = document.querySelectorAll(".add-to-cart");
-for (let i = 0; i < ADD_TO_CART.length; i++) {
-  ADD_TO_CART[i].addEventListener("click", () => {
-    const product = JSON.parse(localStorage.getItem("products"))[i];
-    const itemIndex = JSON.parse(localStorage.getItem("products")).findIndex( item => item.product_name === product.product_name );
 
-    if (product.added_to_cart === false) {
-      let updatedProduct = {...product, added_to_cart:true}
-      let updatedProducts = JSON.parse(localStorage.getItem("products"))
-      updatedProducts[itemIndex] = updatedProduct;
-      localStorage.setItem(
-        "products",
-        JSON.stringify(updatedProducts)
-      );
-      render.cartCounter();
-    }
-  });
-}
 
-const QUICK_VIEW_BTN = document.querySelectorAll(".view")
-for (let i = 0; i < ADD_TO_CART.length; i++) {
-  QUICK_VIEW_BTN[i].addEventListener("click", () => {
-    const product = JSON.parse(localStorage.getItem("products"))[i];
-    render.quickView(product)
-    OVERLAY.style.display = 'block';
-  });
-}
+
 
 
 CART_BUTTON.addEventListener('click',()=>{

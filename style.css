@@ -252,6 +252,18 @@ html {
   place-content: center;
   font-size: 25px;
 }
+.add-to-cart-review {
+  cursor: pointer;
+  margin: auto;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  background-color: #071d34;
+  color: white;
+  display: grid;
+  place-content: center;
+  font-size: 25px;
+}
 .cart-item {
   display: flex;
   justify-content: space-between;
